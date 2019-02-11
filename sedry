@@ -36,7 +36,7 @@ main() {
 	fi
 
 	if [[ -z $input_content ]]; then
-		sed "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
+		${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
 	else
 		printf '%s' "$input_content" | ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
 	fi
