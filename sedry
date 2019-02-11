@@ -38,7 +38,7 @@ main() {
 	if [[ -z $input_content ]]; then
 		sed "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
 	else
-		printf '%s' "$input_content" | sed "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
+		printf '%s' "$input_content" | ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
 	fi
 }
 
@@ -49,6 +49,7 @@ $0 [sed options]
 WARN: don't add -i option
 
 ENV
+SEDRY_SED=gsed     : if you use Mac OS X and you have gsed
 SEDRY_WHOLE_FILE=1 : show the whole file instead of just changed lines and context
 
 e.g.

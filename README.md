@@ -9,6 +9,7 @@ cat /etc/hosts /etc/passwd | sedry 's/#/@/g'
 ```
 ### env
 ```
+SEDRY_SED=gsed
 SEDRY_WHOLE_FILE=1
 ```
 
