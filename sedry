@@ -1,49 +1,49 @@
 #!/usr/bin/env bash
 
 main() {
-	[[ $# -lt 1 ]] && help && return 1
+  [[ $# -lt 1 ]] && help && return 1
 
-	local input_content
-	if [[ -p /dev/stdin ]]; then
-		input_content=$(cat /dev/stdin)
-	fi
+  local input_content
+  if [[ -p /dev/stdin ]]; then
+    input_content=$(cat /dev/stdin)
+  fi
 
-	local filepathes=()
-	for arg in "${@}"; do
-		[[ -f $arg ]] && filepathes=("${filepathes[@]}" "$arg")
-	done
+  local filepathes=()
+  for arg in "${@}"; do
+    [[ -f $arg ]] && filepathes=("${filepathes[@]}" "$arg")
+  done
 
-	local diff_cmd
-	local input_file
-	if type >/dev/null 2>&1 icdiff; then
-		# part
-		output_file="/dev/stdin"
-		diff_cmd=(icdiff -U 1 --line-numbers --show-all-spaces)
-		# whole
-		[[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(icdiff -U 1 --line-numbers --show-all-spaces -W)
-	elif type >/dev/null 2>&1 colordiff; then
-		output_file="-"
-		# part
-		diff_cmd=(colordiff -y --left-column)
-		# whole
-		[[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(colordiff -y --left-column --suppress-common-lines)
-	else
-		output_file="-"
-		# part
-		diff_cmd=(diff -y --left-column)
-		# whole
-		[[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(diff -y --left-column --suppress-common-lines)
-	fi
+  local diff_cmd
+  local input_file
+  if type >/dev/null 2>&1 icdiff; then
+    # part
+    output_file="/dev/stdin"
+    diff_cmd=(icdiff -U 1 --line-numbers --show-all-spaces)
+    # whole
+    [[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(icdiff -U 1 --line-numbers --show-all-spaces -W)
+  elif type >/dev/null 2>&1 colordiff; then
+    output_file="-"
+    # part
+    diff_cmd=(colordiff -y --left-column)
+    # whole
+    [[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(colordiff -y --left-column --suppress-common-lines)
+  else
+    output_file="-"
+    # part
+    diff_cmd=(diff -y --left-column)
+    # whole
+    [[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(diff -y --left-column --suppress-common-lines)
+  fi
 
-	if [[ -z $input_content ]]; then
-		${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
-	else
-		printf '%s' "$input_content" | ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
-	fi
+  if [[ -z $input_content ]]; then
+    ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
+  else
+    printf '%s' "$input_content" | ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
+  fi
 }
 
 help() {
-	cat <<EOF
+  cat <<EOF
 $0 [sed options]
 
 WARN: don't add -i option
@@ -57,7 +57,7 @@ $0 -e 's/hoge/fuga/g' README.md
 cat README.md | $0 -e 's/hoge/fuga/g'
 EOF
 
-	exit 1
+  exit 1
 }
 
 main "$@"
