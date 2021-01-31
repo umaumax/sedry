@@ -15,7 +15,15 @@ main() {
 
   local diff_cmd
   local input_file
-  if type >/dev/null 2>&1 icdiff; then
+  local filter_cmd='cat'
+  if type >/dev/null 2>&1 delta; then
+    filter_cmd='delta'
+    output_file="-"
+    # part
+    diff_cmd=(diff -u)
+    # whole
+    [[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(diff -u --suppress-common-lines)
+  elif type >/dev/null 2>&1 icdiff; then
     # part
     output_file="/dev/stdin"
     diff_cmd=(icdiff -U 1 --line-numbers --show-all-spaces)
@@ -35,11 +43,13 @@ main() {
     [[ -n $SEDRY_WHOLE_FILE ]] && diff_cmd=(diff -y --left-column --suppress-common-lines)
   fi
 
-  if [[ -z $input_content ]]; then
-    ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
-  else
-    printf '%s' "$input_content" | ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
-  fi
+  {
+    if [[ -z $input_content ]]; then
+      ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(cat "${filepathes[@]}") "$output_file"
+    else
+      printf '%s' "$input_content" | ${SEDRY_SED:-sed} "$@" | "${diff_cmd[@]}" <(printf '%s' "$input_content") "$output_file"
+    fi
+  } | "$filter_cmd"
 }
 
 help() {
